@@ -66,19 +66,25 @@ int main( void )
     printf("Something: %d\n", basicProgram);
 
     // Bind index 0 to the shader input variable "VertexPosition"
-    glBindAttribLocation(basicProgram, 0, "VertexPosition");
+    //glBindAttribLocation(basicProgram, 4, "VertexPosition");
     // Bind index 0 to the shader input variable "VertexColor"
-    glBindAttribLocation(basicProgram, 1, "VertexColor");
+    //glBindAttribLocation(basicProgram, 3, "VertexColor");
+
+    GLint pLoc = glGetAttribLocation(basicProgram, "VertexPosition");
+    GLint cLoc = glGetAttribLocation(basicProgram, "VertexColor");
+
+    printf("VertexPosition Location: %d\n", (int)pLoc);
+    printf("VertexColor    Location: %d\n", (int)cLoc);
 
     GLuint vaoHandle;
-    float positionData[] = {
+    GLfloat positionData[] = {
     		0.8f, -0.8f, 0.0f,
     		-0.8f, -0.8f, 0.0f,
     		 0.8f,  0.8f, 0.0f,
     		-0.8f,  0.8f, 0.0f
     };
 
-    float colorData[] = {
+    GLfloat colorData[] = {
     		0.0f, 1.0f, 0.0f,
     		1.0f, 0.0f, 0.0f,
     		0.0f, 0.0f, 1.0f,
@@ -92,12 +98,12 @@ int main( void )
 
     // Populate position buffer
     glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
-    glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), positionData,
+    glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(GLfloat), positionData,
     			 GL_STATIC_DRAW);
 
     // Populate color buffer
     glBindBuffer(GL_ARRAY_BUFFER, colorBufferHandle);
-    glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), colorData,
+    glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(GLfloat), colorData,
     			 GL_STATIC_DRAW);
 
     // Create and set-up array object
@@ -110,12 +116,12 @@ int main( void )
 
     // Map index 0 to the position buffer
     glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0,
+    glVertexAttribPointer( pLoc, 3, GL_FLOAT, GL_FALSE, 0,
     					  (GLubyte *)NULL );
 
     // Map index 1 to the position buffer
     glBindBuffer(GL_ARRAY_BUFFER, colorBufferHandle);
-    glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 0,
+    glVertexAttribPointer( cLoc, 3, GL_FLOAT, GL_FALSE, 0,
     					  (GLubyte *)NULL );
 
     do
