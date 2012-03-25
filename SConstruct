@@ -18,7 +18,7 @@ for src in sources:
 
 if ARGUMENTS.get('do64', 0):
 	env.Program("quad", objects + ['test/quad.cpp', 'lib/x64/libglfw.a'])
+	env.Program("interleaved", objects + ['test/interleaved.cpp', 'lib/x64/libglfw.a'])
 else:
 	env.Program("quad", objects + ['test/quad.cpp', 'lib/x32/libglfw.a'])
-
-#env.Program("quad", objects + ['test/quad.cpp', 'lib/x32/libglfw.a'])
+	env.Program("interleaved", objects + ['test/interleaved.cpp', 'lib/x32/libglfw.a'])

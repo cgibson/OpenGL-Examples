@@ -13,10 +13,17 @@
 #include "glslHelper.hpp"
 #include "glUtil.hpp"
 
+#define BUFFER_OFFSET(i) ((GLfloat*)NULL + (i))
+
+typedef struct CVertex
+{
+	GLfloat pos[3];
+	GLfloat col[3];
+} CVertex;
+
 int main( void )
 {
     int width, height, x;
-//    double t;
 
     // Initialise GLFW
     if( !glfwInit() )
@@ -67,57 +74,46 @@ int main( void )
     GLint cLoc = glGetAttribLocation(basicProgram, "VertexColor");
 
     GLuint vaoHandle;
-    GLfloat positionData[] = {
-    		0.8f, -0.8f, 0.0f,
-    		-0.8f, -0.8f, 0.0f,
-    		 0.8f,  0.8f, 0.0f,
-    		-0.8f,  0.8f, 0.0f
+    CVertex packedData[] = {
+    		{{ 0.8f, -0.8f, 0.0f},
+    		 { 0.0f,  1.0f, 0.0f}},
+
+    		{{-0.8f, -0.8f, 0.0f},
+    		 { 1.0f,  0.0f, 0.0f}},
+
+    		{{ 0.8f,  0.8f, 0.0f},
+    		 { 0.0f,  0.0f, 1.0f}},
+
+    		{{-0.8f,  0.8f, 0.0f},
+    		 { 1.0f,  1.0f, 0.0f}}
     };
 
-    GLfloat colorData[] = {
-    		0.0f, 1.0f, 0.0f,
-    		1.0f, 0.0f, 0.0f,
-    		0.0f, 0.0f, 1.0f,
-    		1.0f, 1.0f, 0.0f
-    };
-
-    GLuint vboHandles[2];
-    glGenBuffers(2, vboHandles);
-    GLuint positionBufferHandle = vboHandles[0];
-    GLuint colorBufferHandle = vboHandles[1];
+    GLuint vboHandle;
+    glGenBuffers(1, &vboHandle);
+    GLuint dataBufferHandle = vboHandle;;
 
     // Populate position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
-    glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(GLfloat), positionData,
+    glBindBuffer(GL_ARRAY_BUFFER, dataBufferHandle);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(CVertex), packedData,
     			 GL_STATIC_DRAW);
 
-    // Populate color buffer
-    glBindBuffer(GL_ARRAY_BUFFER, colorBufferHandle);
-    glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(GLfloat), colorData,
-    			 GL_STATIC_DRAW);
 
     // Create and set-up array object
     glGenVertexArrays( 1, &vaoHandle );
     glBindVertexArray(vaoHandle);
 
     // Enable vertex attribute arrays
-    glEnableVertexAttribArray(0); // Vertex position
-    glEnableVertexAttribArray(1); // Vertex color
+    glEnableVertexAttribArray(pLoc); // Vertex position
+    glEnableVertexAttribArray(cLoc); // Vertex color
 
     // Map index 0 to the position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
-    glVertexAttribPointer( pLoc, 3, GL_FLOAT, GL_FALSE, 0,
-    					  (GLubyte *)NULL );
+    glBindBuffer(GL_ARRAY_BUFFER, dataBufferHandle);
 
-    // Map index 1 to the position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, colorBufferHandle);
-    glVertexAttribPointer( cLoc, 3, GL_FLOAT, GL_FALSE, 0,
-    					  (GLubyte *)NULL );
+    glVertexAttribPointer( pLoc, 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(0) );
+    glVertexAttribPointer( cLoc, 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(3) );
 
     do
     {
-//        t = glfwGetTime();
-//		  float r = 0.3f*(GLfloat)x + (GLfloat)t*100.0f
         glfwGetMousePos( &x, NULL );
 
         // Get window size (may be different than the requested size)
