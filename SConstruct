@@ -12,13 +12,22 @@ sources = [
            Glob("src/*.cpp")
            ]
 
+programs = {
+            "quad":["test/quad.cpp"],
+            "interleaved":["test/interleaved.cpp"],
+            "strip":["test/strip.cpp"],
+            "matrix":["test/matrix.cpp"]
+           }
+
 # Build all modules within the source directory
 for src in sources:
     objects += env.Object(src)
 
 if ARGUMENTS.get('do64', 0):
-	env.Program("quad", objects + ['test/quad.cpp', 'lib/x64/libglfw.a'])
-	env.Program("interleaved", objects + ['test/interleaved.cpp', 'lib/x64/libglfw.a'])
+    archName = "x64"
 else:
-	env.Program("quad", objects + ['test/quad.cpp', 'lib/x32/libglfw.a'])
-	env.Program("interleaved", objects + ['test/interleaved.cpp', 'lib/x32/libglfw.a'])
+    archName = "x32"
+    
+for name,srcList in programs.iteritems():
+   env.Program(name, objects + (srcList+['lib/%s/libglfw.a' % archName]))
+
