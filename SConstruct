@@ -4,7 +4,7 @@ env = Environment(CC = 'g++')
     
 env.Append(CPPPATH = ['include'])
 env.Append(CCFLAGS = ['-g', '-pthread', '-O2', '-Wall'])
-env.Append(LIBS = [ 'Xrandr','rt', 'X11', 'GLU', 'GL', 'GLEW', 'm'])
+env.Append(LIBS = [ 'Xrandr','rt', 'X11', 'GLU', 'GL', 'GLEW', 'm', 'IL', 'ILU', 'ILUT'])
 
 objects = []
 
@@ -16,7 +16,8 @@ programs = {
             "quad":["test/quad.cpp"],
             "interleaved":["test/interleaved.cpp"],
             "strip":["test/strip.cpp"],
-            "matrix":["test/matrix.cpp"]
+            "matrix":["test/matrix.cpp"],
+            "texture":["test/texture.cpp"]
            }
 
 # Build all modules within the source directory
