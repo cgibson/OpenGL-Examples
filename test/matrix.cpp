@@ -12,7 +12,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#include "glslHelper.hpp"
+#include "GLSLProgram.hpp"
 #include "glUtil.hpp"
 
 #define BUFFER_OFFSET(i) ((GLfloat*)NULL + (i))
@@ -74,11 +74,31 @@ int main( void )
     // Enable vertical sync (on cards that support it)
     glfwSwapInterval( 1 );
 
-    GLuint basicProgram = createGLSLProgram("shaders/basicview");
+    shader::GLSLProgram prog;
 
-    GLint pLoc   = glGetAttribLocation(basicProgram, "VertexPosition");
-    GLint cLoc   = glGetAttribLocation(basicProgram, "VertexColor");
-    GLint mvpLoc = glGetUniformLocation(basicProgram, "MVP");
+    // Compile vertex shader
+    if( ! prog.compileShaderFromFile("shaders/basicview.vert", shader::VERTEX))
+    {
+		printf("Vertex shader failed to compile!\n%s", prog.log().c_str());
+		exit(1);
+	}
+
+    // Compile fragment shader
+    if( ! prog.compileShaderFromFile("shaders/basicview.frag", shader::FRAGMENT))
+    {
+		printf("Fragment shader failed to compile!\n%s", prog.log().c_str());
+		exit(1);
+	}
+
+    // Link shaders
+    if( ! prog.link() )
+    {
+    	printf("Shader program failed to link!\n%s", prog.log().c_str());
+    	exit(1);
+    }
+
+    GLint pLoc   = prog.getAttribLocation("VertexPosition");
+    GLint cLoc   = prog.getAttribLocation("VertexColor");
 
     GLuint vaoHandle;
     CVertex packedData[] = {
@@ -136,7 +156,7 @@ int main( void )
         // Special case: avoid division by zero below
         height = height > 0 ? height : 1;
 
-        glUseProgram( basicProgram );
+        prog.use();
 
     	/////////////
     	 mat4 proj, view, modelview, modelviewProj, normal;
@@ -148,7 +168,7 @@ int main( void )
 	    normal = glm::inverse(view * modelview);
 	    normal = glm::transpose(normal);
 
-        glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(modelviewProj));
+	    prog.setUniform("MVP", modelviewProj);
         ////////////
 
         glBindVertexArray(vaoHandle);

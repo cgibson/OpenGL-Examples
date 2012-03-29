@@ -10,8 +10,8 @@
 #include "GL/glfw.h"
 #include "glm/glm.hpp"
 
-#include "glslHelper.hpp"
 #include "glUtil.hpp"
+#include "GLSLProgram.hpp"
 
 int main( void )
 {
@@ -61,10 +61,32 @@ int main( void )
     // Enable vertical sync (on cards that support it)
     glfwSwapInterval( 1 );
 
-    GLuint basicProgram = createGLSLProgram("shaders/basic");
+    shader::GLSLProgram prog;
 
-    GLint pLoc = glGetAttribLocation(basicProgram, "VertexPosition");
-    GLint cLoc = glGetAttribLocation(basicProgram, "VertexColor");
+    // Compile vertex shader
+    if( ! prog.compileShaderFromFile("shaders/basic.vert", shader::VERTEX))
+    {
+		printf("Vertex shader failed to compile!\n%s", prog.log().c_str());
+		exit(1);
+	}
+
+    // Compile fragment shader
+    if( ! prog.compileShaderFromFile("shaders/basic.frag", shader::FRAGMENT))
+    {
+		printf("Fragment shader failed to compile!\n%s", prog.log().c_str());
+		exit(1);
+	}
+
+    // Link shaders
+    if( ! prog.link() )
+    {
+    	printf("Shader program failed to link!\n%s", prog.log().c_str());
+    	exit(1);
+    }
+
+    // Grab attrib locations
+    GLint pLoc = prog.getAttribLocation("VertexPosition");
+    GLint cLoc = prog.getAttribLocation("VertexColor");
 
     GLuint vaoHandle;
     GLfloat positionData[] = {
@@ -126,7 +148,7 @@ int main( void )
         // Special case: avoid division by zero below
         height = height > 0 ? height : 1;
 
-        glUseProgram( basicProgram );
+        prog.use();
         glBindVertexArray(vaoHandle);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 

@@ -10,7 +10,7 @@
 #include "GL/glfw.h"
 #include "glm/glm.hpp"
 
-#include "glslHelper.hpp"
+#include "GLSLProgram.hpp"
 #include "imageUtil.hpp"
 #include "glUtil.hpp"
 
@@ -69,18 +69,33 @@ int main( void )
     // Enable vertical sync (on cards that support it)
     glfwSwapInterval( 1 );
 
-    GLuint basicProgram = createGLSLProgram("shaders/basictexture");
+    shader::GLSLProgram prog;
 
-    GLint pLoc =  glGetAttribLocation(basicProgram, "VertexPosition");
-    GLint uvLoc = glGetAttribLocation(basicProgram, "VertexTexCoord");
+    // Compile vertex shader
+    if( ! prog.compileShaderFromFile("shaders/basictexture.vert", shader::VERTEX))
+    {
+		printf("Vertex shader failed to compile!\n%s", prog.log().c_str());
+		exit(1);
+	}
 
-    // Set the sampler to use texture 0
-    GLint texLoc = glGetUniformLocation(basicProgram, "Tex1");
-    if( texLoc >= 0 ) {
-    	glUniform1i(texLoc, 0);
-    }else{
-    	fprintf(stderr, "Uniform variable Tex1 not found!\n");
+    // Compile fragment shader
+    if( ! prog.compileShaderFromFile("shaders/basictexture.frag", shader::FRAGMENT))
+    {
+		printf("Fragment shader failed to compile!\n%s", prog.log().c_str());
+		exit(1);
+	}
+
+    // Link shaders
+    if( ! prog.link() )
+    {
+    	printf("Shader program failed to link!\n%s", prog.log().c_str());
+    	exit(1);
     }
+
+    GLint pLoc   = prog.getAttribLocation("VertexPosition");
+    GLint uvLoc   = prog.getAttribLocation("VertexTexCoord");
+
+    prog.setUniform("Tex1", 0);
 
     GLuint vaoHandle;
     CVertex packedData[] = {
@@ -141,7 +156,7 @@ int main( void )
         // Special case: avoid division by zero below
         height = height > 0 ? height : 1;
 
-        glUseProgram( basicProgram );
+        prog.use();
         glBindVertexArray(vaoHandle);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 

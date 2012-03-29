@@ -14,17 +14,18 @@ sources = [
 
 programs = {
             "quad":["test/quad.cpp"],
+            "matrix":["test/matrix.cpp"],
             "interleaved":["test/interleaved.cpp"],
             "strip":["test/strip.cpp"],
-            "matrix":["test/matrix.cpp"],
             "texture":["test/texture.cpp"]
-           }
+            }
 
 # Build all modules within the source directory
 for src in sources:
     objects += env.Object(src)
 
-if ARGUMENTS.get('do64', 0):
+bits, linkage = platform.architecture()
+if bits == '64bit':
     archName = "x64"
 else:
     archName = "x32"
