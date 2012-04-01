@@ -27,8 +27,8 @@ public:
 	bool use();
 	string log();
 
-	int getHandle();
-	bool isLinked();
+	int getHandle() { return handle; }
+	bool isLinked() { return linked; }
 
 	void bindAttribLocation( GLuint location, const char * name );
 	void bindFragDataLocation( GLuint location, const char * name );

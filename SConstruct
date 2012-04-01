@@ -1,6 +1,10 @@
 import platform
+from os.path import join, basename
+from os import path
 
 env = Environment(CC = 'g++')
+
+buildPath = "build"
     
 env.Append(CPPPATH = ['include'])
 env.Append(CCFLAGS = ['-g', '-pthread', '-O2', '-Wall'])
@@ -8,9 +12,7 @@ env.Append(LIBS = [ 'Xrandr','rt', 'X11', 'GLU', 'GL', 'GLEW', 'm', 'IL', 'ILU',
 
 objects = []
 
-sources = [
-           Glob("src/*.cpp")
-           ]
+sources = Glob("src/*.cpp")
 
 programs = {
             "quad":["test/quad.cpp"],
@@ -21,8 +23,13 @@ programs = {
             }
 
 # Build all modules within the source directory
-for src in sources:
-    objects += env.Object(src)
+for file in sources:
+    
+    fileName = basename(str(file))
+    fileName = fileName.split(".")[0]
+    outDir = join(buildPath, fileName)
+    
+    objects += env.Object(outDir, file)
 
 bits, linkage = platform.architecture()
 if bits == '64bit':
@@ -31,5 +38,5 @@ else:
     archName = "x32"
     
 for name,srcList in programs.iteritems():
-   env.Program(name, objects + (srcList+['lib/%s/libglfw.a' % archName]))
+   env.Program(join(buildPath, name), objects + (srcList+['lib/%s/libglfw.a' % archName]))
 

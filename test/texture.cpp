@@ -112,13 +112,15 @@ int main( void )
     		 { 0.0f,  1.0f}}
     };
 
+    void * somePtr = (void*)packedData;
+
     GLuint vboHandle;
     glGenBuffers(1, &vboHandle);
     GLuint dataBufferHandle = vboHandle;;
 
     // Populate position buffer
     glBindBuffer(GL_ARRAY_BUFFER, dataBufferHandle);
-    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(CVertex), packedData,
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(CVertex), somePtr,
     			 GL_STATIC_DRAW);
 
 

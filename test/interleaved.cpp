@@ -11,6 +11,7 @@
 #include "glm/glm.hpp"
 
 #include "GLSLProgram.hpp"
+#include "vao.hpp"
 #include "glUtil.hpp"
 
 #define BUFFER_OFFSET(i) ((GLfloat*)NULL + (i))
@@ -90,11 +91,6 @@ int main( void )
     	printf("Shader program failed to link!\n%s", prog.log().c_str());
     	exit(1);
     }
-
-    GLint pLoc = prog.getAttribLocation("VertexPosition");
-    GLint cLoc = prog.getAttribLocation("VertexColor");
-
-    GLuint vaoHandle;
     CVertex packedData[] = {
     		{{ 0.8f, -0.8f, 0.0f},
     		 { 0.0f,  1.0f, 0.0f}},
@@ -109,29 +105,16 @@ int main( void )
     		 { 1.0f,  1.0f, 0.0f}}
     };
 
-    GLuint vboHandle;
-    glGenBuffers(1, &vboHandle);
-    GLuint dataBufferHandle = vboHandle;;
+    // Build our vertex array object
+    Vao vao;
 
-    // Populate position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, dataBufferHandle);
-    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(CVertex), packedData,
-    			 GL_STATIC_DRAW);
+    vao.setShaderProgram(prog.getHandle());
+    vao.create(GL_ARRAY_BUFFER, 4 * sizeof(CVertex), packedData, GL_STATIC_DRAW);
 
-
-    // Create and set-up array object
-    glGenVertexArrays( 1, &vaoHandle );
-    glBindVertexArray(vaoHandle);
-
-    // Enable vertex attribute arrays
-    glEnableVertexAttribArray(pLoc); // Vertex position
-    glEnableVertexAttribArray(cLoc); // Vertex color
-
-    // Map index 0 to the position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, dataBufferHandle);
-
-    glVertexAttribPointer( pLoc, 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(0) );
-    glVertexAttribPointer( cLoc, 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(3) );
+    // We have a stride the size of our datastructure.  Also, BUFFER_OFFSET is
+    // a simple macro to help us build an offset within the datastructure
+    vao.bindAttribute("VertexPosition", 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(0));
+    vao.bindAttribute("VertexColor", 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(3));
 
     do
     {
@@ -143,9 +126,8 @@ int main( void )
         // Special case: avoid division by zero below
         height = height > 0 ? height : 1;
 
-        prog.use();
-        glBindVertexArray(vaoHandle);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        // Draw our vertex array object
+        vao.draw(GL_TRIANGLE_STRIP, 0, 4);
 
         // Swap buffers
         glfwSwapBuffers();
