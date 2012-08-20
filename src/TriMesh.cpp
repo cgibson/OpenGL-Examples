@@ -1,4 +1,4 @@
-#include "TriMesh.h"
+#include "TriMesh.hpp"
 
 #define VERT2_INDEX(tri,vert) tri*2+vert
 #define VERT3_INDEX(tri,vert) tri*3+vert
@@ -13,6 +13,89 @@ enum {
 };
 
 namespace mesh {
+
+    void
+    TriMesh::normalize(float radius)
+    {
+        float half_rad = radius * 0.5f;
+        float min_x, min_y, min_z;
+        float max_x, max_y, max_z;
+        vec3 cur = this->vertices[0];
+
+        min_x = cur.x;
+        min_y = cur.y;
+        min_z = cur.z;
+        max_x = cur.x;
+        max_y = cur.y;
+        max_z = cur.z;
+
+        for (uint i = 1; i < this->vertices.size(); i++)
+        {
+            cur = this->vertices[i];
+            if (cur.x < min_x)
+                min_x = cur.x;
+            if (cur.y < min_y)
+                min_y = cur.y;
+            if (cur.z < min_z)
+                min_z = cur.z;
+
+            if (cur.x > max_x)
+                max_x = cur.x;
+            if (cur.y > max_y)
+                max_y = cur.y;
+            if (cur.z > max_z)
+                max_z = cur.z;
+        }
+
+        vec3 size((max_x - min_x),
+                  (max_y - min_y),
+                  (max_z - min_z));
+
+        float size_max;
+        // Find out the biggest
+        if (size.x > size.y) {
+            if (size.x > size.z) {
+                size_max = size.x;
+            }else{
+                size_max = size.z;
+            }
+        } else{
+            if (size.y > size.z) {
+                size_max = size.y;
+            }else{
+                size_max = size.z;
+            }
+        }
+
+        vec3 min(min_x, min_y, min_z);
+        vec3 max(max_x, max_y, max_z);
+
+        vec3 center = (max + min);
+        center *= 0.5;
+
+        float scale = radius / size_max;
+
+        printf("CENTER: %.3f %.3f %.3f\n", center.x, center.y, center.z);
+
+        for (uint i = 0; i < this->vertices.size(); i++)
+        {
+            cur = this->vertices[i];
+
+            cur -= center;
+            cur *= scale;
+
+            this->vertices[i] = cur;
+
+            /*
+            tx = cur.x - center.x);
+            ty = cur.y - min_y;
+            tz = cur.z - min_z;
+            this->vertices[i] = vec3((tx / size_max) * radius - half_rad,
+                                     (ty / size_max) * radius - half_rad,
+                                     (tz / size_max) * radius - half_rad);
+                                     */
+        }
+    }
 
     CompressedTriMesh::CompressedTriMesh(TriMesh const & m, GLint renderType):
         _renderType(renderType)

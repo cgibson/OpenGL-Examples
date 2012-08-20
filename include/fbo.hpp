@@ -12,6 +12,7 @@ public:
   bool    enable();
   bool    disable();
   void    reset();
+
   GLuint  getDepthTextureHandle() { return depth_handle; }
   GLuint  getHandle() { return fbo_handle; }
   GLuint  getTextureCount() { return texture_count; }

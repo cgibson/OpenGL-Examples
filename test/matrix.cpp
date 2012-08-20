@@ -100,19 +100,21 @@ int main( void )
     GLint pLoc   = prog.getAttribLocation("VertexPosition");
     GLint cLoc   = prog.getAttribLocation("VertexColor");
 
+    printf("Vertex Position Attrib Loc: %d\n", (int)pLoc);
+    printf("Vertex Color Attrib Loc: %d\n", (int)cLoc);
+
     GLuint vaoHandle;
     CVertex packedData[] = {
-    		{{ 0.8f, -0.8f, 0.0f},
-    		 { 0.0f,  1.0f, 0.0f}},
+            {{ 0.8f, -0.8f, 0.0f},
+            { 0.0f,  1.0f, 0.0f}},
+            {{-0.8f, -0.8f, 0.0f},
+            { 1.0f,  0.0f, 0.0f}},
 
-    		{{-0.8f, -0.8f, 0.0f},
-    		 { 1.0f,  0.0f, 0.0f}},
+            {{ 0.8f,  0.8f, 0.0f},
+            { 0.0f,  0.0f, 1.0f}},
 
-    		{{ 0.8f,  0.8f, 0.0f},
-    		 { 0.0f,  0.0f, 1.0f}},
-
-    		{{-0.8f,  0.8f, 0.0f},
-    		 { 1.0f,  1.0f, 0.0f}}
+            {{-0.8f,  0.8f, 0.0f},
+            { 1.0f,  1.0f, 0.0f}}
     };
 
     GLuint vboHandle;
@@ -122,7 +124,7 @@ int main( void )
     // Populate position buffer
     glBindBuffer(GL_ARRAY_BUFFER, dataBufferHandle);
     glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(CVertex), packedData,
-    			 GL_STATIC_DRAW);
+            GL_STATIC_DRAW);
 
 
     // Create and set-up array object
@@ -145,8 +147,8 @@ int main( void )
 
     do
     {
-    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    	t = glfwGetTime();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        t = glfwGetTime();
         float r = 0.3f*(GLfloat)x + (GLfloat)t*100.0f;
         glfwGetMousePos( &x, NULL );
 
@@ -158,18 +160,16 @@ int main( void )
 
         prog.use();
 
-    	/////////////
-    	 mat4 proj, view, modelview, modelviewProj, normal;
-		proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
-		view = glm::lookAt(eye, lookAt, vec3(0,1,0));
-		modelview = glm::rotate(glm::mat4(1.0f), r, vec3(0,1,0));
-		modelviewProj = (proj * view * modelview);
+        mat4 proj, view, modelview, modelviewProj, normal;
+        proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
+        view = glm::lookAt(eye, lookAt, vec3(0,1,0));
+        modelview = glm::rotate(glm::mat4(1.0f), r, vec3(0,1,0));
+        modelviewProj = (proj * view * modelview);
 
-	    normal = glm::inverse(view * modelview);
-	    normal = glm::transpose(normal);
+        normal = glm::inverse(view * modelview);
+        normal = glm::transpose(normal);
 
-	    prog.setUniform("MVP", modelviewProj);
-        ////////////
+        prog.setUniform("MVP", modelviewProj);
 
         glBindVertexArray(vaoHandle);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

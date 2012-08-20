@@ -19,7 +19,11 @@ programs = {
             "matrix":["test/matrix.cpp"],
             "interleaved":["test/interleaved.cpp"],
             "strip":["test/strip.cpp"],
-            "texture":["test/texture.cpp"]
+            "texture":["test/texture.cpp"],
+            "vectorvbo":["test/vectorvbo.cpp"],
+            "ring":["test/ring.cpp"],
+            "loadmesh":["test/loadmesh.cpp"],
+            "envmap":["test/envmap.cpp"]
             }
 
 # Build all modules within the source directory
