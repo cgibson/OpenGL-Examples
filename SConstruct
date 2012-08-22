@@ -23,7 +23,9 @@ programs = {
             "vectorvbo":["test/vectorvbo.cpp"],
             "ring":["test/ring.cpp"],
             "loadmesh":["test/loadmesh.cpp"],
-            "envmap":["test/envmap.cpp"]
+            "envmap":["test/envmap.cpp"],
+            "fbotest":["test/fbotest.cpp"],
+            "vaotest":["test/vaotest.cpp"],
             }
 
 # Build all modules within the source directory
