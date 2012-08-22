@@ -12,9 +12,10 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-#include "fbo.hpp"
 #include "GLSLProgram.hpp"
 #include "glUtil.hpp"
+#include "vao.hpp"
+#include "fbo.hpp"
 
 #define BUFFER_OFFSET(i) ((GLfloat*)NULL + (i))
 
@@ -23,8 +24,8 @@ using glm::vec3;
 
 typedef struct CVertex
 {
-	GLfloat pos[3];
-	GLfloat col[3];
+    vec3 pos;
+    vec3 col;
 } CVertex;
 
 int main( void )
@@ -54,18 +55,18 @@ int main( void )
     if( err != GLEW_OK )
     {
         fprintf( stderr, "Failed to initialize GLEW: %s\n",
-        				 glewGetErrorString(err));
+                         glewGetErrorString(err));
         exit( EXIT_FAILURE );
     }
 
     printGLVersion();
 
     fprintf( stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
-	if (!GLEW_ARB_vertex_buffer_object)
-	{
+    if (!GLEW_ARB_vertex_buffer_object)
+    {
         fprintf( stderr, "VBO not supported\n");
-		exit( EXIT_FAILURE );
-	}
+        exit( EXIT_FAILURE );
+    }
 
     glfwSetWindowTitle( "Spinning Triangle" );
 
@@ -80,77 +81,91 @@ int main( void )
     // Compile vertex shader
     if( ! prog.compileShaderFromFile("shaders/basicview.vert", shader::VERTEX))
     {
-		printf("Vertex shader failed to compile!\n%s", prog.log().c_str());
-		exit(1);
-	}
+        printf("Vertex shader failed to compile!\n%s", prog.log().c_str());
+        exit(1);
+    }
 
     // Compile fragment shader
     if( ! prog.compileShaderFromFile("shaders/basicview.frag", shader::FRAGMENT))
     {
-		printf("Fragment shader failed to compile!\n%s", prog.log().c_str());
-		exit(1);
-	}
+        printf("Fragment shader failed to compile!\n%s", prog.log().c_str());
+        exit(1);
+    }
 
     // Link shaders
     if( ! prog.link() )
     {
-    	printf("Shader program failed to link!\n%s", prog.log().c_str());
-    	exit(1);
+        printf("Shader program failed to link!\n%s", prog.log().c_str());
+        exit(1);
     }
 
-    GLint pLoc   = prog.getAttribLocation("VertexPosition");
-    GLint cLoc   = prog.getAttribLocation("VertexColor");
+    // COMPILE FBO SHADER
+    ////////////////////////////////////////////////////////////////////////////
+    shader::GLSLProgram fboprog;
 
-    printf("Vertex Position Attrib Loc: %d\n", (int)pLoc);
-    printf("Vertex Color Attrib Loc: %d\n", (int)cLoc);
+    // Compile vertex shader
+    if( ! fboprog.compileShaderFromFile("shaders/fbo.vert", shader::VERTEX))
+    {
+        printf("Vertex shader failed to compile!\n%s", fboprog.log().c_str());
+        exit(1);
+    }
 
-    GLuint vaoHandle;
-    CVertex packedData[] = {
-            {{ 0.8f, -0.8f, 0.0f},
-            { 0.0f,  1.0f, 0.0f}},
-            {{-0.8f, -0.8f, 0.0f},
-            { 1.0f,  0.0f, 0.0f}},
+    // Compile fragment shader
+    if( ! fboprog.compileShaderFromFile("shaders/fbo.frag", shader::FRAGMENT))
+    {
+        printf("Fragment shader failed to compile!\n%s", fboprog.log().c_str());
+        exit(1);
+    }
 
-            {{ 0.8f,  0.8f, 0.0f},
-            { 0.0f,  0.0f, 1.0f}},
+    // Link shaders
+    if( ! fboprog.link() )
+    {
+        printf("Shader program failed to link!\n%s", fboprog.log().c_str());
+        exit(1);
+    }
 
-            {{-0.8f,  0.8f, 0.0f},
-            { 1.0f,  1.0f, 0.0f}}
-    };
+    // END COMPILE FBO SHADER
+    ////////////////////////////////////////////////////////////////////////////
 
-    GLuint vboHandle;
-    glGenBuffers(1, &vboHandle);
-    GLuint dataBufferHandle = vboHandle;;
+    // Build the object to render within the fbo
+    vector<CVertex> packedData;
+    packedData.push_back((CVertex){vec3( 0.8f, -0.8f, 0.0f), vec3( 0.0f,  1.0f, 0.0f)});
+    packedData.push_back((CVertex){vec3(-0.8f, -0.8f, 0.0f), vec3( 1.0f,  0.0f, 0.0f)});
+    packedData.push_back((CVertex){vec3( 0.8f,  0.8f, 0.0f), vec3( 0.0f,  0.0f, 1.0f)});
+    packedData.push_back((CVertex){vec3(-0.8f,  0.8f, 0.0f), vec3( 1.0f,  1.0f, 0.0f)});
 
-    // Populate position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, dataBufferHandle);
-    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(CVertex), packedData,
-            GL_STATIC_DRAW);
+    Vao vao;
+    vao.create(GL_ARRAY_BUFFER, 4 * sizeof(CVertex), &packedData.front(), GL_STATIC_DRAW);
+    vao.setShaderProgram(prog.getHandle());
+    vao.bindAttribute("VertexPosition", 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(0));
+    vao.bindAttribute("VertexColor", 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(3));
 
+    // Build the FBO plane
+    vector<CVertex> fboPlaneData;
+    fboPlaneData.push_back((CVertex){vec3( 1.0f, -1.0f, 0.0f), vec3( 1.0f, 0.0f, 0.0f )});
+    fboPlaneData.push_back((CVertex){vec3(-1.0f, -1.0f, 0.0f), vec3( 0.0f, 0.0f, 0.0f )});
+    fboPlaneData.push_back((CVertex){vec3( 1.0f,  1.0f, 0.0f), vec3( 1.0f, 1.0f, 0.0f )});
+    fboPlaneData.push_back((CVertex){vec3(-1.0f,  1.0f, 0.0f), vec3( 0.0f, 1.0f, 0.0f )});
 
-    // Create and set-up array object
-    glGenVertexArrays( 1, &vaoHandle );
-    glBindVertexArray(vaoHandle);
-
-    // Enable vertex attribute arrays
-    glEnableVertexAttribArray(pLoc); // Vertex position
-    glEnableVertexAttribArray(cLoc); // Vertex color
-
-    // Map index 0 to the position buffer
-    glBindBuffer(GL_ARRAY_BUFFER, dataBufferHandle);
-
-    glVertexAttribPointer( pLoc, 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(0) );
-    glVertexAttribPointer( cLoc, 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(3) );
-
+    Vao fboVao;
+    fboVao.create(GL_ARRAY_BUFFER, 4 * sizeof(CVertex), &fboPlaneData.front(), GL_STATIC_DRAW);
+    fboVao.setShaderProgram(fboprog.getHandle());
+    fboVao.bindAttribute("VertexPosition", 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(0));
+    fboVao.bindAttribute("VertexUV", 3, GL_FLOAT, GL_FALSE, sizeof(CVertex), BUFFER_OFFSET(3));
 
     Fbo fbo;
-    fbo.create(640, 480,1);
+    int r = fbo.create(640, 480, 1);
+
+    if (!r) {
+        printf("SOMETHING WENT WRONG!\n");
+    }
 
     vec3 eye(0,0,-3);
-	vec3 lookAt(0);
+    vec3 lookAt(0);
 
     do
     {
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         t = glfwGetTime();
         float r = 0.3f*(GLfloat)x + (GLfloat)t*100.0f;
@@ -162,12 +177,17 @@ int main( void )
         // Special case: avoid division by zero below
         height = height > 0 ? height : 1;
 
+        // RENDER INTO FBO
+        ////////////////////////////////////////////////////////////////////////
+        fbo.enable();
+        glClearColor(0.5f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         prog.use();
 
         mat4 proj, view, modelview, modelviewProj, normal;
         proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
         view = glm::lookAt(eye, lookAt, vec3(0,1,0));
-        modelview = glm::rotate(glm::mat4(1.0f), r, vec3(0,1,0));
+        modelview = glm::rotate(glm::mat4(1.0f), r, vec3(0.5,1.2,0.3));
         modelviewProj = (proj * view * modelview);
 
         normal = glm::inverse(view * modelview);
@@ -175,10 +195,33 @@ int main( void )
 
         prog.setUniform("MVP", modelviewProj);
 
-        fbo.enable();
-        glBindVertexArray(vaoHandle);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        vao.draw(GL_TRIANGLE_STRIP, 0, 4);
+
         fbo.disable();
+
+        // RENDER FBO TO SCREEN
+        ////////////////////////////////////////////////////////////////////////
+
+        // Set the FBO texture to texture zero
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, fbo.getTextureHandles()[0]);
+
+        // We could create an orthographic view, but that'd be boring!
+        //mat4 modelviewProj = glm::ortho(0.0f, 0.0f, 640.0f, 480.0f, -1.0f, 1.0f);
+
+        // Instead, let's spin the quad!
+        proj = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
+        view = glm::lookAt(eye, lookAt, vec3(0,1,0));
+        modelview = glm::rotate(glm::mat4(1.0f), r * 0.4f, vec3(0,1,0));
+        modelviewProj = (proj * view * modelview);
+
+        // Begin using the FBO shader
+        fboprog.use();
+        //fboprog.setUniform("ViewMatrix", view2);
+        fboprog.setUniform("FboTexture", 0);
+        fboprog.setUniform("MVP", modelviewProj);
+
+        fboVao.draw(GL_TRIANGLE_STRIP, 0, 4);
 
         // Swap buffers
         glfwSwapBuffers();

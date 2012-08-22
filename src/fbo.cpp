@@ -3,6 +3,7 @@
 #include "GL/gl.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 /*
  * FBO Helper constructor
@@ -29,6 +30,10 @@ bool Fbo::create( GLuint width, GLuint height, GLuint count )
 
 	// Initialize the FBO itself
 	bool r = initializeFBO( true );
+
+	if (!r) {
+	    printf("Initialization failed\n");
+	}
 
 	// bind current FBO
 	glBindFramebuffer( GL_FRAMEBUFFER, fbo_handle );
@@ -91,12 +96,12 @@ bool Fbo::initializeFBO(bool useDepthBuffer )
 	}
 
 	// check for errors and report them
-	GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+	/*GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 	if( status != GL_FRAMEBUFFER_COMPLETE )
 	{
 		reset();
 		return false;
-	}
+	}*/
 
 	// reset current bound buffer
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -121,6 +126,12 @@ bool Fbo::generateTexture( GLuint width, GLuint height, GLuint *handle)
 	// Set some basic parameters for texture filtering
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
 	return true;
 }
@@ -155,6 +166,8 @@ bool Fbo::disable()
 	// Only run if we were previously enabled
 	if( enabled )
 	{
+
+	    //glGenerateMipmap(GL_TEXTURE_2D);
 		// Reset to the original state (no frame buffer)
 		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 		enabled = false;

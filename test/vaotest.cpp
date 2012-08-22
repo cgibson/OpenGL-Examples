@@ -98,14 +98,6 @@ int main( void )
     	exit(1);
     }
 
-    GLint pLoc   = prog.getAttribLocation("VertexPosition");
-    GLint cLoc   = prog.getAttribLocation("VertexColor");
-
-    printf("Vertex Position Attrib Loc: %d\n", (int)pLoc);
-    printf("Vertex Color Attrib Loc: %d\n", (int)cLoc);
-
-    GLuint vaoHandle;
-
     // Using a vector instead of a flat array
     vector<CVertex> packedData;
     packedData.push_back((CVertex){vec3( 0.8f, -0.8f, 0.0f), vec3( 0.0f,  1.0f, 0.0f)});
