@@ -17,7 +17,6 @@ namespace mesh {
     void
     TriMesh::normalize(float radius)
     {
-        float half_rad = radius * 0.5f;
         float min_x, min_y, min_z;
         float max_x, max_y, max_z;
         vec3 cur = this->vertices[0];

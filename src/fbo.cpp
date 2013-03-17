@@ -39,7 +39,7 @@ bool Fbo::create( GLuint width, GLuint height, GLuint count )
 	glBindFramebuffer( GL_FRAMEBUFFER, fbo_handle );
 
 	// for every texture, generate a texture and add it to the FBO
-	for( int i = 0; i < texture_count; i++ )
+	for( uint i = 0; i < texture_count; i++ )
 	{
 		// generate the new texture at i
 		r &= generateTexture(width, height, &texture_handles[i]);

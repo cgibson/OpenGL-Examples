@@ -26,6 +26,7 @@ programs = {
             "envmap":["test/envmap.cpp"],
             "fbotest":["test/fbotest.cpp"],
             "vaotest":["test/vaotest.cpp"],
+            "camera":["test/camera.cpp"],
             }
 
 # Build all modules within the source directory
