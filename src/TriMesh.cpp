@@ -28,7 +28,7 @@ namespace mesh {
         max_y = cur.y;
         max_z = cur.z;
 
-        for (uint i = 1; i < this->vertices.size(); i++)
+        for (unsigned int i = 1; i < this->vertices.size(); i++)
         {
             cur = this->vertices[i];
             if (cur.x < min_x)
@@ -76,7 +76,7 @@ namespace mesh {
 
         printf("CENTER: %.3f %.3f %.3f\n", center.x, center.y, center.z);
 
-        for (uint i = 0; i < this->vertices.size(); i++)
+        for (unsigned int i = 0; i < this->vertices.size(); i++)
         {
             cur = this->vertices[i];
 
@@ -85,14 +85,6 @@ namespace mesh {
 
             this->vertices[i] = cur;
 
-            /*
-            tx = cur.x - center.x);
-            ty = cur.y - min_y;
-            tz = cur.z - min_z;
-            this->vertices[i] = vec3((tx / size_max) * radius - half_rad,
-                                     (ty / size_max) * radius - half_rad,
-                                     (tz / size_max) * radius - half_rad);
-                                     */
         }
     }
 
@@ -106,8 +98,6 @@ namespace mesh {
         _vertices = new float[_count * 3];
         _uvs = new float[_count * 3];
         _normals = new float[_count * 3];
-
-        printf("Count: %d\n", _count);
 
         for( int i=0; i<_count; i++ ) {
             vec3 vert = m.vertices[i];

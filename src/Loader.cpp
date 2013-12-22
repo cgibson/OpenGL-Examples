@@ -23,9 +23,9 @@ namespace mesh {
         vector<vec2> uvs;
         vector<vec3> normals;
 
-        vector<uint> vertexIndices;
-        vector<uint> normalIndices;
-        vector<uint> uvIndices;
+        vector<unsigned int> vertexIndices;
+        vector<unsigned int> normalIndices;
+        vector<unsigned int> uvIndices;
 
         bool hasUvs = true;
         bool hasNormals = true;
@@ -169,13 +169,13 @@ namespace mesh {
                    iv2 < 1 || iv2 > vertices.size() ||
                    iv3 < 1 || iv3 > vertices.size()) {
                     printf("Error: vertex index out of bounds:\n\t[%s]\n", s.c_str());
-                    printf("\tMax size: %u\n", (uint)vertices.size());
+                    printf("\tMax size: %u\n", (unsigned int)vertices.size());
                 }
                 if(in1 < 1 || in1 > normals.size() ||
                    in2 < 1 || in2 > normals.size() ||
                    in3 < 1 || in3 > normals.size()) {
                     printf("Error: normal index out of bounds:\n\t[%s]\n", s.c_str());
-                    printf("\tMax size: %u\n", (uint)normals.size());
+                    printf("\tMax size: %u\n", (unsigned int)normals.size());
                 }
 
                 vertexIndices.push_back(iv1);
@@ -194,8 +194,8 @@ namespace mesh {
             printf("Ignoring line:\n\t[%s]\n", s.c_str());
         }
 
-        uint vertexIndex, uvIndex, normalIndex;
-        for (uint i = 0; i < vertexIndices.size(); ++i)
+        unsigned int vertexIndex, uvIndex, normalIndex;
+        for (unsigned int i = 0; i < vertexIndices.size(); ++i)
         {
             vertexIndex = vertexIndices[i];
             m.vertices.push_back(vertices[vertexIndex - 1]);

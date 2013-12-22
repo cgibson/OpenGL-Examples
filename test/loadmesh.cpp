@@ -1,7 +1,7 @@
 //========================================================================
-// This is a small test application for GLFW.
-// The program opens a window (640x480), and renders a spinning colored
-// triangle (it is controlled with both the GLFW timer and the mouse).
+// Here we rely on Loader.cpp and TriMesh.cpp to load the contents
+// of a 3d .obj file into a VAO. For simpler Vertex Array Object
+// examples, check quad.cpp or ring.cpp
 //========================================================================
 
 #include <stdio.h>
@@ -46,6 +46,18 @@ int main( int argc, char* argv[] )
         fprintf( stderr, "Failed to initialize GLFW\n" );
         exit( EXIT_FAILURE );
     }
+    
+    glewExperimental = GL_TRUE;
+
+    // We need this to get the code to compile+run on MacOSX. I have yet
+    // to confirm if this works on Linux...
+
+#ifdef __APPLE__
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
 
     // Open a window and create its OpenGL context
@@ -117,10 +129,11 @@ int main( int argc, char* argv[] )
     // Using a vector instead of a flat array
     vector<CVertex> packedData;
 
+    // Load the model into a TriMesh object
     mesh::TriMesh mesh = mesh::loadObj(modelPath);
     mesh.normalize(2);
 
-    // Load the data into our packed format
+    // Load the data from our TriMesh into a packed format
     for (uint i = 0; i < mesh.vertices.size(); i++) {
         packedData.push_back((CVertex) { mesh.vertices[i], mesh.normals[i] });
     }

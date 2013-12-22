@@ -2,7 +2,15 @@
 #define GLSLPROGRAM_HPP_
 
 #include <string>
-#include <GL/glew.h>
+
+#ifdef __LINUX__
+    #include <GL/glew.h>
+#endif
+
+#ifdef __APPLE__
+    #include <GL/glew.h>
+#endif
+
 #include <GL/glfw.h>
 
 #include <glm/glm.hpp>

@@ -4,11 +4,31 @@ from os import path
 
 env = Environment(CC = 'g++')
 
+os = env["PLATFORM"]
+
 buildPath = "build"
     
 env.Append(CPPPATH = ['include'])
 env.Append(CCFLAGS = ['-g', '-pthread', '-O2', '-Wall'])
-env.Append(LIBS = [ 'Xrandr','rt', 'X11', 'GLU', 'GL', 'GLEW', 'm', 'IL', 'ILU', 'ILUT'])
+
+print "THIS IS THE OS: " + os
+
+if os == "darwin":
+    env.Append(LINKFLAGS = ['-framework', 'OpenGL'])
+
+    env.Append(CPPPATH = ['/usr/local/Cellar/devil/1.7.8/include',
+                          '/usr/local/Cellar/glew/1.9.0/include',
+                          '/usr/local/Cellar/glfw/2.7.8/include'])
+
+    env.Append(LIBPATH = ['/usr/local/Cellar/devil/1.7.8/lib',
+                          '/usr/local/Cellar/glew/1.9.0/lib', 
+                          '/usr/local/Cellar/glfw/2.7.8/lib'])
+
+    env.Append(LIBS = ['glfw','GLEW', 'IL', 'ILU', 'ILUT'])
+else:
+    env.Append(LIBS = ['Xrandr', 'rt', 'X11', 'GLU', 'GL', 'GLEW', 'm', 'IL', 'ILU', 'ILUT'])
+
+
 
 objects = []
 
@@ -43,7 +63,7 @@ if bits == '64bit':
     archName = "x64"
 else:
     archName = "x32"
-    
+
 for name,srcList in programs.iteritems():
-   env.Program(join(buildPath, name), objects + (srcList+['lib/%s/libglfw.a' % archName]))
+   env.Program(join(buildPath, name), objects + srcList) #+ (srcList+['lib/%s/%s/libglfw.a' % (archName, os)]))
 

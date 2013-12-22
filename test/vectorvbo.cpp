@@ -1,7 +1,6 @@
 //========================================================================
-// This is a small test application for GLFW.
-// The program opens a window (640x480), and renders a spinning colored
-// triangle (it is controlled with both the GLFW timer and the mouse).
+// This is a small test application which introduces
+// Vertex Buffer Objects (VBOs).
 //========================================================================
 
 #include <stdio.h>
@@ -40,6 +39,18 @@ int main( void )
         fprintf( stderr, "Failed to initialize GLFW\n" );
         exit( EXIT_FAILURE );
     }
+    
+    glewExperimental = GL_TRUE;
+
+    // We need this to get the code to compile+run on MacOSX. I have yet
+    // to confirm if this works on Linux...
+
+#ifdef __APPLE__
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
 
     // Open a window and create its OpenGL context

@@ -1,7 +1,7 @@
 //========================================================================
-// This is a small test application for GLFW.
-// The program opens a window (640x480), and renders a spinning colored
-// triangle (it is controlled with both the GLFW timer and the mouse).
+// Vertex Array Objects can also be initialized with 'interleaved'
+// data (where multiple attributes are defined in a single buffer).
+// For basic VAO examples, check out quad.cpp or ring.cpp
 //========================================================================
 
 #include <stdio.h>
@@ -32,6 +32,18 @@ int main( void )
         fprintf( stderr, "Failed to initialize GLFW\n" );
         exit( EXIT_FAILURE );
     }
+    
+    glewExperimental = GL_TRUE;
+
+    // We need this to get the code to compile+run on MacOSX. I have yet
+    // to confirm if this works on Linux...
+
+#ifdef __APPLE__
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
 
     // Open a window and create its OpenGL context
@@ -91,6 +103,9 @@ int main( void )
     	printf("Shader program failed to link!\n%s", prog.log().c_str());
     	exit(1);
     }
+    
+    // Our data is interleaved, allowing for both position and color information
+    // to be combined into one array. Nifty for organization and performance
     CVertex packedData[] = {
     		{{ 0.8f, -0.8f, 0.0f},
     		 { 0.0f,  1.0f, 0.0f}},

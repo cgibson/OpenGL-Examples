@@ -1,7 +1,8 @@
 //========================================================================
-// This is a small test application for GLFW.
-// The program opens a window (640x480), and renders a spinning colored
-// triangle (it is controlled with both the GLFW timer and the mouse).
+// This is a small test application that implements
+// an environment map fragment shader. Using the camera
+// location, we can determine what point on the environment
+// cube to point to given a fragment on the 3D model.
 //========================================================================
 
 #include <stdio.h>
@@ -47,6 +48,18 @@ int main( int argc, char* argv[] )
         fprintf( stderr, "Failed to initialize GLFW\n" );
         exit( EXIT_FAILURE );
     }
+    
+    glewExperimental = GL_TRUE;
+
+    // We need this to get the code to compile+run on MacOSX. I have yet
+    // to confirm if this works on Linux...
+
+#ifdef __APPLE__
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
 
     // Open a window and create its OpenGL context
@@ -110,9 +123,6 @@ int main( int argc, char* argv[] )
     GLint pLoc   = prog.getAttribLocation("VertexPosition");
     GLint nLoc   = prog.getAttribLocation("VertexNormal");
 
-    printf("Vertex Position Attrib Loc: %d\n", (int)pLoc);
-    printf("Vertex Normal Attrib Loc: %d\n", (int)nLoc);
-
     GLuint vaoHandle;
 
     // Using a vector instead of a flat array
@@ -157,7 +167,7 @@ int main( int argc, char* argv[] )
     iluInit();
     ilutRenderer(ILUT_OPENGL);
 
-    GLuint texID = util::image::loadCubemap("/home/cgibson/Projects/OpenGL-Examples/img/cube");
+    GLuint texID = util::image::loadCubemap("img/cube");
     //texID = util::image::loadImage("/home/cgibson/Projects/OpenGL-Examples/img/random.png");
     printf("TEXTURE ID: %u\n", (uint)texID);
     glActiveTexture(GL_TEXTURE0);
@@ -184,6 +194,7 @@ int main( int argc, char* argv[] )
         // Start using our shader
         prog.use();
 
+        //Set "Tex1" to point to GL_TEXTURE0.
         prog.setUniform("Tex1", 0);
 
         // We'll need all of these matrices

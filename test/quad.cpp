@@ -1,12 +1,20 @@
 //========================================================================
-// This is a small test application for GLFW.
-// The program opens a window (640x480), and renders a spinning colored
-// triangle (it is controlled with both the GLFW timer and the mouse).
+// A test application that exemplifies the simplest OpenGL
+// scene. Basic Vertex Array Objects, Vertex Buffer Objects
+// and matrices (via GLM) are used.
 //========================================================================
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glew.h>
+
+#ifdef __LINUX__
+    #include <GL/glew.h>
+#endif
+
+#ifdef __APPLE__
+    #include <GL/glew.h>
+#endif
+
 #include "GL/glfw.h"
 #include "glm/glm.hpp"
 
@@ -17,7 +25,7 @@ int main( void )
 {
     int width, height, x;
 //    double t;
-
+    
     // Initialise GLFW
     if( !glfwInit() )
     {
@@ -25,9 +33,20 @@ int main( void )
         exit( EXIT_FAILURE );
     }
 
+    glewExperimental = GL_TRUE;
+
+    // We need this to get the code to compile+run on MacOSX. I have yet
+    // to confirm if this works on Linux...
+
+#ifdef __APPLE__
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
 
     // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( 640, 480, 0,0,0,0, 0,0, GLFW_WINDOW ) )
+    if( !glfwOpenWindow( 640, 480, 8, 8, 8,0, 0, 0, GLFW_WINDOW ) )
     {
         fprintf( stderr, "Failed to open GLFW window\n" );
 
@@ -138,8 +157,6 @@ int main( void )
 
     do
     {
-//        t = glfwGetTime();
-//		  float r = 0.3f*(GLfloat)x + (GLfloat)t*100.0f
         glfwGetMousePos( &x, NULL );
 
         // Get window size (may be different than the requested size)

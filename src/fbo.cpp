@@ -1,6 +1,12 @@
 #include "fbo.hpp"
 
-#include "GL/gl.h"
+#ifdef __LINUX__
+    #include "GL/gl.h"
+#endif
+
+#ifdef __APPLE__
+    #include <OpenGL/gl.h>
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -39,7 +45,7 @@ bool Fbo::create( GLuint width, GLuint height, GLuint count )
 	glBindFramebuffer( GL_FRAMEBUFFER, fbo_handle );
 
 	// for every texture, generate a texture and add it to the FBO
-	for( uint i = 0; i < texture_count; i++ )
+	for( unsigned int i = 0; i < texture_count; i++ )
 	{
 		// generate the new texture at i
 		r &= generateTexture(width, height, &texture_handles[i]);
