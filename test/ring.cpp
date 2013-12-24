@@ -54,7 +54,7 @@ int main( void )
 
 
     // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( 640, 480, 0,0,0,0, 0,0, GLFW_WINDOW ) )
+    if( !glfwOpenWindow( 640, 480, 8,8,8,8,24,8, GLFW_WINDOW ) )
     {
         fprintf( stderr, "Failed to open GLFW window\n" );
 
@@ -113,6 +113,9 @@ int main( void )
 
     GLint pLoc   = prog.getAttribLocation("VertexPosition");
     GLint cLoc   = prog.getAttribLocation("VertexColor");
+    
+    printf("PLOC: %d\n", (int)pLoc);
+    printf("CLOC: %d\n", (int)cLoc);
 
     GLuint vaoHandle;
 
@@ -201,7 +204,7 @@ int main( void )
         prog.setUniform("MVP", modelviewProj);
 
         glBindVertexArray(vaoHandle);
-        glDrawArrays(GL_QUAD_STRIP, 0, packedData.size());
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, packedData.size());
 
         // Swap buffers
         glfwSwapBuffers();

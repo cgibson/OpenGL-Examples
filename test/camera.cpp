@@ -56,7 +56,7 @@ int main( void )
 
 
     // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( 640, 480, 0,0,0,0, 0,0, GLFW_WINDOW ) )
+    if( !glfwOpenWindow( 640, 480, 8,8,8,8,24,8, GLFW_WINDOW ) )
     {
         fprintf( stderr, "Failed to open GLFW window\n" );
 
@@ -123,8 +123,8 @@ int main( void )
 
     packedData.push_back((CVertex){ vec3(-0.5, -0.5, 0), vec3( 0.0f,  0.0f, 1.0f) });
     packedData.push_back((CVertex){ vec3(-0.5,  0.5, 0), vec3( 1.0f,  0.0f, 0.0f) });
-    packedData.push_back((CVertex){ vec3( 0.5,  0.5, 0), vec3( 0.0f,  1.0f, 1.0f) });
-    packedData.push_back((CVertex){ vec3( 0.5, -0.5, 0), vec3( 0.0f,  1.0f, 0.0f) });
+    packedData.push_back((CVertex){ vec3( 0.5, -0.5, 0), vec3( 0.0f,  1.0f, 1.0f) });
+    packedData.push_back((CVertex){ vec3( 0.5,  0.5, 0), vec3( 0.0f,  1.0f, 0.0f) });
 
     GLuint vboHandle;
     glGenBuffers(1, &vboHandle);
@@ -299,7 +299,7 @@ int main( void )
         prog.setUniform("MVP", modelviewProj);
 
         glBindVertexArray(vaoHandle);
-        glDrawArrays(GL_QUADS, 0, packedData.size());
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, packedData.size());
 
         // Swap buffers
         glfwSwapBuffers();

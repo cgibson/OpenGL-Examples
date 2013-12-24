@@ -22,9 +22,9 @@ void main() {
 	float intensity = max(0.3, dot(Normal, vec3(1,1,1)));
 	vec4 color = diffuse * intensity;
 	
-	vec4 reflectColor = textureCube( Tex1, ReflectDir);
-	vec4 refractColor = textureCube( Tex1, RefractDir);
-	vec4 transparentColor = textureCube( Tex1, ViewDir);
+	vec4 reflectColor = texture( Tex1, ReflectDir);
+	vec4 refractColor = texture( Tex1, RefractDir);
+	vec4 transparentColor = texture( Tex1, ViewDir);
     
     if (length(RefractDir) < 0.1) {
         reflectContrib = reflectContrib + refractContrib;
@@ -34,5 +34,4 @@ void main() {
     vec4 rflColor = mix(reflectColor, refractColor, refractContrib / (reflectContrib + refractContrib));
 	
 	FragColor = mix(mix(rflColor * diffuse, color, 1 - (reflectContrib + refractContrib)), transparentColor, transparencyAmt);
-	//FragColor = Normal;
 }

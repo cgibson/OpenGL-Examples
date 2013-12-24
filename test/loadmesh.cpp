@@ -61,7 +61,7 @@ int main( int argc, char* argv[] )
 
 
     // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( 640, 480, 0,0,0,0, 0,0, GLFW_WINDOW ) )
+    if( !glfwOpenWindow( 640, 480, 8,8,8,8,24,8, GLFW_WINDOW ) )
     {
         fprintf( stderr, "Failed to open GLFW window\n" );
 
@@ -168,6 +168,8 @@ int main( int argc, char* argv[] )
     vec3 eye(0,2,-3);
     vec3 lookAt(0);
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     do
     {

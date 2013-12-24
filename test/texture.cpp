@@ -46,7 +46,7 @@ int main( void )
 
 
     // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( 640, 480, 0,0,0,0, 0,0, GLFW_WINDOW ) )
+    if( !glfwOpenWindow( 640, 480, 8,8,8,8,24,8, GLFW_WINDOW ) )
     {
         fprintf( stderr, "Failed to open GLFW window\n" );
 
@@ -154,7 +154,9 @@ int main( void )
     iluInit();
     ilutRenderer(ILUT_OPENGL);
 
-    GLuint texID = util::image::loadImage("/home/cgibson/Projects/OpenGL-Examples/img/random.png");
+    GLuint texID = util::image::loadImage("img/random.png");
+    
+    printf("Texture: %d\n", texID);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texID);

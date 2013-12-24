@@ -63,7 +63,7 @@ int main( int argc, char* argv[] )
 
 
     // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( 1024, 768, 0,0,0,0, 0,0, GLFW_WINDOW ) )
+    if( !glfwOpenWindow( 1024, 768, 8,8,8,8,24,8, GLFW_WINDOW ) )
     {
         fprintf( stderr, "Failed to open GLFW window\n" );
 
